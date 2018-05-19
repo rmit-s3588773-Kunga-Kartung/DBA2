@@ -7,12 +7,14 @@ public class HashLoad {
    static final int BNAME_SIZE = 200;
    static final int OVERHEAD = 18;
    
-   static int currentPosition = 0;
+   static int currentPositionInHeap = 0;
    static int collisionCounter = 0;
    static int insertionCounter = 0;
+   static boolean lastRecordFlag = false;
+   static int trailingWhiteSpace;
    
    public void initialiseHashFile(int pageSize) {
-      File hashFile = new File("hash." + pageSize);
+      File hashFile = new File("testhash." + pageSize);
       try {
          RandomAccessFile raf = new RandomAccessFile(hashFile,"rw");
          
@@ -27,12 +29,16 @@ public class HashLoad {
    public void hashFunction(int pageSize) {
       
       File heapFile = new File("test." + pageSize);
+      File hashFile = new File("testhash." + pageSize);
+      trailingWhiteSpace = pageSize - (13 * RECORD_SIZE);
       
       boolean isNextPage = true;
       boolean isNextRecord = true;
+      int counter = 1;
       
       try {
          FileInputStream fis = new FileInputStream(heapFile);
+         RandomAccessFile hashRaf = new RandomAccessFile(hashFile, "rw");
          
          while(isNextPage) {
             byte[] page = new byte[pageSize];
@@ -48,18 +54,28 @@ public class HashLoad {
             isNextRecord = true;
             while(isNextRecord) {
                for(int i=0; i<page.length; i+=RECORD_SIZE) {
-                  byte[] name = new byte[BNAME_SIZE];
-                  System.arraycopy(page, i+OVERHEAD, name, 0, 200);
-                  String nam = new String(name);
+                  if(i == 3564) { //lastrecord
+                     lastRecordFlag = true;
+                  }
                   if(i == 3861) {
                      System.out.println("Last record reached in current page");
                      isNextRecord = false;
                      break;
                   }
-                  System.out.println(nam);
                   
-                  //add what to do with string here
+                  byte[] bName = new byte[BNAME_SIZE];
+                  System.arraycopy(page, i+OVERHEAD, bName, 0, 200);
+
+                  String name = new String(bName).trim();
                   
+                  System.out.println(counter + " " + name);
+                  counter++;
+                  
+                  int hash_Name = Math.abs(name.hashCode());
+                  
+                  int hashIndex = hash_Name % HASH_SIZE;
+                  
+                  hashWrite(hashIndex, pageSize, hashRaf);
                   
                }
             }
@@ -70,6 +86,32 @@ public class HashLoad {
       } catch (IOException e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
+      }
+   }
+
+   public void hashWrite(int hashIndex, int pageSize, RandomAccessFile hashRaf) {
+      
+      while(true) {
+         try {
+            hashRaf.seek(hashIndex);
+            int checkPosHash = hashRaf.read();
+            hashRaf.seek(hashIndex);
+            
+            if(checkPosHash == 0) {
+               hashRaf.write(currentPositionInHeap);
+               if(lastRecordFlag == true) {
+                  currentPositionInHeap += RECORD_SIZE + trailingWhiteSpace;
+               } else {
+                  currentPositionInHeap += RECORD_SIZE;
+               }
+               break;
+            } else {
+               collisionCounter++;
+               hashIndex += 4;
+            }
+         } catch (IOException e) {
+            e.printStackTrace();
+         }
       }
    }
 
