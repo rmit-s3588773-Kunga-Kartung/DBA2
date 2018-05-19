@@ -40,30 +40,29 @@ public class HashLoad {
             
             String pageCheck = new String(page);
             if(pageCheck.trim().length() == 0) {
+               System.out.println("Should break page");
                isNextPage = false;
+               break;
             }
             
             isNextRecord = true;
             while(isNextRecord) {
-               for(int i=0; i<page.length; i+=297) {
+               for(int i=0; i<page.length; i+=RECORD_SIZE) {
                   byte[] name = new byte[BNAME_SIZE];
                   System.arraycopy(page, i+OVERHEAD, name, 0, 200);
                   String nam = new String(name);
-                  if((i == 3861) && (nam.trim().length() == 0)) {
-                     System.out.println("here");
+                  if(i == 3861) {
+                     System.out.println("Last record reached in current page");
                      isNextRecord = false;
+                     break;
                   }
-//                  System.arraycopy(page, i+OVERHEAD, name, 0, 200);
-//                  String nam = new String(name);
-//                  
-//                  if(nam.trim().length() == 0) {
-//                     isNextRecord = false;
-//                  }
                   System.out.println(nam);
+                  
+                  //add what to do with string here
+                  
+                  
                }
             }
-            
-            
          }
       } catch (FileNotFoundException e) {
          // TODO Auto-generated catch block
@@ -72,8 +71,6 @@ public class HashLoad {
          // TODO Auto-generated catch block
          e.printStackTrace();
       }
-      
-      
    }
 
    public static void main(String[] args) {
