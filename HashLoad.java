@@ -101,6 +101,7 @@ public class HashLoad {
                hashRaf.write(currentPositionInHeap);
                if(lastRecordFlag == true) {
                   currentPositionInHeap += RECORD_SIZE + trailingWhiteSpace;
+                  lastRecordFlag=false;
                } else {
                   currentPositionInHeap += RECORD_SIZE;
                }
