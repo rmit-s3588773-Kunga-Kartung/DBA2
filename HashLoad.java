@@ -2,10 +2,12 @@ import java.io.*;
 
 public class HashLoad {
    
-   static final int HASH_SIZE = 3700001; // HashSize&mod : number used as closest prime to 3,700,000
+   static final int HASH_SIZE = 3700000; // HashSize&mod
+   static final int HASH_MOD = 3581791;
    static final int RECORD_SIZE = 297;
    static final int BNAME_SIZE = 200;
    static final int OVERHEAD = 18; // to handle the business name in front of each record
+   static final int INTSIZE = 4;
    
    static int currentPositionInHeap = 0; // where the current pointer in the heap file is
    static int collisionCounter = 0;
@@ -20,9 +22,9 @@ public class HashLoad {
       File hashFile = new File("hash." + pageSize);
       try {
          RandomAccessFile raf = new RandomAccessFile(hashFile,"rw");
-         
+         int placeHolder = -1;
          for(int i=0; i<HASH_SIZE; i++) {
-            raf.writeInt(-1);
+            raf.writeInt(placeHolder);
          }
          
          raf.close();
@@ -90,10 +92,12 @@ public class HashLoad {
                   System.out.println(counter);
                   counter++; 
                   
-                  int hash_Name = Math.abs(name.hashCode());
-                  int hashIndex = hash_Name % HASH_SIZE;
+                  int hashIndex = Math.abs(name.hashCode()) % HASH_MOD * 4;
+                  
                   hashWrite(hashIndex, pageSize, hashRaf);
                }
+               
+               
             }
          }
          
@@ -143,11 +147,16 @@ public class HashLoad {
             } else {
                collisionCounter++;
                hashIndex += 4;
+               
+               if (hashIndex >= HASH_SIZE * 4 - 1) {
+                  hashIndex = 0;
+               }
             }
          } catch (IOException e) {
             e.printStackTrace();
          }
       }
+      
    }
    
    // Main Method
