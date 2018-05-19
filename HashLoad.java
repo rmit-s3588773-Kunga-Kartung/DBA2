@@ -92,7 +92,7 @@ public class HashLoad {
                   System.out.println(counter);
                   counter++; 
                   
-                  int hashIndex = Math.abs(name.hashCode()) % HASH_MOD * 4;
+                  int hashIndex = Math.abs(name.hashCode()) % HASH_MOD * INTSIZE;
                   
                   hashWrite(hashIndex, pageSize, hashRaf);
                }
@@ -147,8 +147,8 @@ public class HashLoad {
             } else {
                collisionCounter++;
                hashIndex += 4;
-               
-               if (hashIndex >= HASH_SIZE * 4 - 1) {
+               // If reached end of the hash size then go to the beginning and continue from there
+               if (hashIndex >= HASH_SIZE * INTSIZE - 1) {
                   hashIndex = 0;
                }
             }
@@ -166,8 +166,15 @@ public class HashLoad {
          String input = args[0];
          int pageSize = Integer.parseInt(input);
          
+         long startTime = System.currentTimeMillis();
+         
          hashLoad.initialiseHashFile(pageSize);
          hashLoad.hashFunction(pageSize);
+         
+         long stopTime = System.currentTimeMillis();
+         
+         System.out.println(stopTime - startTime + " ms");
+         System.out.println((stopTime - startTime) * 0.001 + " sec");
          
       } catch(NumberFormatException | ArrayIndexOutOfBoundsException e) {
          System.out.println("Invalid pagesize");
