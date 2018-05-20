@@ -2,8 +2,8 @@ import java.io.*;
 
 public class HashLoad {
    
-   static final int HASH_SIZE = 3700000; // HashSize&mod
-   static final int HASH_MOD = 3581791;
+   static final int HASH_SIZE = 3700000; // HashSize
+   static final int HASH_MOD = 3581791; // mod
    static final int RECORD_SIZE = 297;
    static final int BNAME_SIZE = 200;
    static final int OVERHEAD = 18; // to handle the business name in front of each record
