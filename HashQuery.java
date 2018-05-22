@@ -49,6 +49,10 @@ public class HashQuery {
 
       int positionInHeap;
       boolean flagFound = false;
+      
+      // End timer set to stop function as if it takes more than 500ms to find the record
+      // then in theory it should mean that it is not an existing record
+      long endTime = System.currentTimeMillis() + 5000;
 
       while (true) {
          try {
@@ -112,6 +116,11 @@ public class HashQuery {
                // If reached end of the hash size then go to the beginning and continue from there
                if (hashIndex >= HASH_SIZE * 4 - 1) {
                   hashIndex = 0;
+               }
+               // Check to see if current time is still less than end time otherwise stop execution.
+               if(System.currentTimeMillis() > endTime ) {
+                  System.out.println("Did not find this record.");
+                  break;
                }
             }
          } catch (IOException e) {
